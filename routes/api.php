@@ -25,6 +25,7 @@ Route::post('/auth/createToken', [AuthController::class, 'createToken']);
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/auth/login', [AuthController::class, 'login']);
+    Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
     Route::get('/showOrder', [OrderController::class, 'showOrder']);
     Route::get('/detailOrder/{id}', [OrderController::class, 'detailOrder']);
@@ -43,10 +44,10 @@ Route::middleware(['auth:sanctum', 'waitressAuthenticate'])->group(function () {
 
 // Route Chef
 Route::middleware(['auth:sanctum', 'chefAuthenticate'])->group(function () {
-
+    Route::get('/order/{id}/set-to-done', [OrderController::class, 'setToDone']);
 });
 
 // Route Kasir
 Route::middleware(['auth:sanctum', 'kasirAuthenticate'])->group(function () {
-
+    Route::get('/order/{id}/payment', [OrderController::class, 'payment']);
 });

@@ -53,5 +53,11 @@ class AuthController extends Controller
         // return "berhasil login";
     }
 
+    public function logout(){
+        $user = auth()->user();
+        // Revoke all tokens...
+        $user->tokens()->delete();
+        return response(['message' => 'Logout Berhasil']);
+    }
 
 }

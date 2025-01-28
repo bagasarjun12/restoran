@@ -60,6 +60,27 @@ class OrderController extends Controller
 
     public function detailOrder($id){
         $data = orders::findOrFail($id);
-        return $data->loadMissing(['orderDetail:id_order,harga,id_item','orderDetail.items:id,nama','waitress:id,name','kasir:id,name']);
+        return response (['data' => $data->loadMissing(['orderDetail:id_order,harga,id_item','orderDetail.items:id,nama','waitress:id,name','kasir:id,name'])]);
+    }
+    
+
+    public function setToDone($id){
+        $order = orders::findOrFail($id);
+        if($order->status != 'order'){
+            return response('Cannot change order data if its status is not "Order"', 403);
+        }
+        $order->status = 'done';
+        $order->save();
+        return response(['data' => $order]);
+    }
+
+    public function payment($id){
+        $order = orders::findOrFail($id);
+        if($order->status != 'done'){
+            return response('Cannot change order data if its status is not "Done"', 403);
+        }
+        $order->status = 'paid';
+        $order->save();
+        return response(['data' => $order]);
     }
 }
