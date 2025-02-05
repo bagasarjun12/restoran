@@ -19,7 +19,7 @@ class KasirAuth
     public function handle(Request $request, Closure $next, ...$guards)
     {
         $user = auth()->user();
-        if($user->role !== 'kasir'){
+        if($user->role !== 'kasir' && $user->role !== 'manager'){
             return response('you cannot access this function', 403);
         }
 

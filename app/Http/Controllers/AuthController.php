@@ -20,7 +20,7 @@ class AuthController extends Controller
             'email' => 'required|email',
             'password' => 'required',
         ]);
-        $user2 = 'tes';
+
         $user = User::where('email', $request->email)->first();
  
         if (! $user || ! Hash::check($request->password, $user->password)) {
@@ -29,7 +29,10 @@ class AuthController extends Controller
             ]);
         }
 
-        return 'Berhasil Login';
+        $user->tokens()->delete();
+        $user->token = $user->createToken('token')->plainTextToken;
+
+        return response(['data' => $user]);
         // $user->tokens()->delete();
         // return $user->createToken('token')->plainTextToken;
     }

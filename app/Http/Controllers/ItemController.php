@@ -56,5 +56,10 @@ class ItemController extends Controller
         $item->update($request->all());
         return response(['Item Berhasil Di Update', 'data' => $item]);
     }
+
+    public function showItem(){
+        $item = items::all();
+        return response(['data' => $item]);
+    }
     
 }

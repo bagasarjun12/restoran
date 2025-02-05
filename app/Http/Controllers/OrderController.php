@@ -15,6 +15,7 @@ class OrderController extends Controller
         $request->validate([
             'nama_customer' => 'required|max:255',
             'nomor_meja' => 'required',
+            'total' => 'integer|required',
         ]);
         
         try {
@@ -22,7 +23,6 @@ class OrderController extends Controller
                 // Buat semua penyimpanan disini
                 $request['tanggal'] = now()->toDateString(); // Format: YYYY-MM-DD
                 $request['waktu'] = now()->toTimeString(); // Format: HH:MM:SS
-                $request['total'] = 0;
                 $request['status'] = 'order';
                 $request['id_waitress'] = auth()->user()->id;
                 $order = orders::create($request->all());
@@ -37,12 +37,9 @@ class OrderController extends Controller
                         'id_order' => $order->id,
                         'id_item' => $dataItem->id,
                         'harga' => $dataItem->harga,
-                        'jumlah' => 1,
+                        'jumlah' => $item['qty'],
                     ]);
                 });
-
-                //update total
-                orders::where('id', $order->id)->update(['total' => $totalHarga]);
 
             DB::commit();
         } catch (\Throwable $th) {
@@ -58,16 +55,36 @@ class OrderController extends Controller
         return response(['data' => $allOrders]);
     }
 
+    public function onlyOrder(){
+        $allOrders = orders::where('status', 'order')->get();
+        return response(['data' => $allOrders]);
+    }
+
+    public function onlyPaid(){
+        $allOrders = orders::where('status', 'paid')->get();
+        return response(['data' => $allOrders]);
+    }
+
+    public function setToPaid(Request $request){
+        $order = orders::findOrFail($request->id);
+        if($order->status != 'order'){
+            return response('Cannot change order data if its status is not "Order"', 403);
+        }
+        $order->status = 'paid';
+        $order->save();
+        return response(['data' => $order]);
+    }
+
     public function detailOrder($id){
         $data = orders::findOrFail($id);
-        return response (['data' => $data->loadMissing(['orderDetail:id_order,harga,id_item','orderDetail.items:id,nama','waitress:id,name','kasir:id,name'])]);
+        return response (['data' => $data->loadMissing(['orderDetail:id_order,harga,jumlah,id_item','orderDetail.items:id,nama,gambar','waitress:id,name','kasir:id,name'])]);
     }
     
 
     public function setToDone($id){
         $order = orders::findOrFail($id);
-        if($order->status != 'order'){
-            return response('Cannot change order data if its status is not "Order"', 403);
+        if($order->status != 'paid'){
+            return response('Cannot change order data if its status is not "Paid"', 403);
         }
         $order->status = 'done';
         $order->save();

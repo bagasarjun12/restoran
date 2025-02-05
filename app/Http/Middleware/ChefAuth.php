@@ -19,7 +19,7 @@ class ChefAuth
     public function handle(Request $request, Closure $next, ...$guards)
     {
         $user = auth()->user();
-        if($user->role !== 'chef'){
+        if($user->role !== 'chef' && $user->role !== 'manager'){
             return response('you cannot access this function', 403);
         }
 

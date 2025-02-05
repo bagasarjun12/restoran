@@ -19,7 +19,7 @@ class WaitressAuth
     public function handle(Request $request, Closure $next, ...$guards)
     {
         $user = auth()->user();
-        if($user->role !== 'waitress'){
+        if($user->role !== 'waitress' && $user->role !== 'manager'){
             return response('you cannot access this function', 403);
         }
 
